@@ -1,0 +1,6 @@
+hue:
+    baseUrl: "https://127.0.0.1/api/SOmeR4ndOmek3yH312E"
+    colors:
+        red: 65535
+        green: 25500
+        blue: 46920
