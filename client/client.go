@@ -17,6 +17,7 @@ const FULL_BRIGHTNESS = 254
 type HueClient struct {
 	client *http.Client
 	lightColor map[string]int
+	lights map[string]models.Light
 	baseUrl string
 }
 
@@ -44,13 +45,16 @@ func (h *HueClient) getBytesFromResp(resp *http.Response) []byte {
 }
 
 func (h *HueClient) getLightByName(name string) models.Light {
-	lights := make(map[string]models.Light)
+	// TODO: we'll be running this at all times eventually (that's the thought)
+	// so we want to cache the lights so we don't have to call hue everytime to get
+	// everything...
+	if len(h.lights) == 0 {
+		resp := h.getLights("/lights")
+		lightsResp := h.getBytesFromResp(resp)
+		json.Unmarshal(lightsResp, &h.lights)
+	}
 
-	resp := h.getLights("/lights")
-	lightsResp := h.getBytesFromResp(resp)
-	json.Unmarshal(lightsResp, &lights)
-
-	for k, v := range lights {
+	for k, v := range h.lights {
 		if v.Name == name {
 			v.ID = k
 			return v
@@ -103,12 +107,10 @@ func (h *HueClient) changeLightState(light models.Light, on bool, hue int) {
 		panic(err)
 	}
 
-	resp, err := h.client.Do(req)
+	_, err = h.client.Do(req)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(resp.Status)
 }
 
 // NewHueClient - creates a new hue client

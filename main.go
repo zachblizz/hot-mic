@@ -1,20 +1,24 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
 	c "github.com/zachblizz/hot-mic/client"
 )
 
 const (
-	MIC_NO_VIDEO = "green"
+	MIC_NO_VIDEO = "yellow"
 	MIC_AND_VIDEO = "red"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
-
 	client := c.NewHueClient()
-	// client.TurnLightOn("Office", MIC_AND_VIDEO)
-	client.TurnLightOff("Office")
+
+	if os.Args[1] == "vid" {
+		client.TurnLightOn("Office", MIC_AND_VIDEO)
+	} else if os.Args[1] == "mic" {
+		client.TurnLightOn("Office", MIC_NO_VIDEO)
+	} else {
+		client.TurnLightOff("Office")
+	}
 }
